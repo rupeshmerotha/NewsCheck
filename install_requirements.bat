@@ -1,5 +1,5 @@
 @echo off
-REM This script installs required Python packages for the Fake News Detection app
+REM 
 python -m venv .venv
 call .venv\Scripts\activate
 pip install --upgrade pip

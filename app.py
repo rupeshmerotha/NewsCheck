@@ -13,7 +13,6 @@ import joblib
 import os
 
 
-# Load datasets and cache preprocessing
 @st.cache_data
 def load_and_prepare_data():
     try:
@@ -25,7 +24,7 @@ def load_and_prepare_data():
     except Exception as e:
         st.error(f"Error loading CSV files: {e}")
         st.stop()
-    # Check required columns
+    
     for df, name in zip([true, fake], ['True.csv', 'Fake.csv']):
         for col in ['text']:
             if col not in df.columns:
@@ -34,7 +33,7 @@ def load_and_prepare_data():
     true['label'] = 1
     fake['label'] = 0
     news = pd.concat([fake, true], axis=0)
-    # Drop columns only if they exist
+    
     for col in ['title', 'subject', 'date']:
         if col in news.columns:
             news = news.drop(col, axis=1)
@@ -44,8 +43,6 @@ def load_and_prepare_data():
     y = news['label']
     return train_test_split(x, y, test_size=0.3)
 
-
-# Text preprocessing function
 def textProcessing(text):
     text = text.lower()
     text = re.sub(r'\[.*?\]', '', text)
@@ -58,13 +55,12 @@ def textProcessing(text):
     return text
 
 
-# Train model and vectorizer
 @st.cache_resource
 def train_model():
     model_path = "model.joblib"
     vectorizer_path = "vectorizer.joblib"
     metrics_path = "metrics.joblib"
-    # If model and vectorizer exist, load them
+    
     if os.path.exists(model_path) and os.path.exists(vectorizer_path) and os.path.exists(metrics_path):
         model = joblib.load(model_path)
         vectorizer = joblib.load(vectorizer_path)
@@ -88,7 +84,7 @@ def train_model():
             'y_test': y_test,
             'y_pred': y_pred
         }
-        # Save to disk for future fast loading
+
         joblib.dump(model, model_path)
         joblib.dump(vectorization, vectorizer_path)
         joblib.dump(metrics, metrics_path)
@@ -98,7 +94,6 @@ def train_model():
         st.stop()
 
 
-# Main app
 def main():
     st.set_page_config(page_title="NewsCheck - Fake News Detector", page_icon="🔎", layout="wide")
     st.markdown(
@@ -167,7 +162,6 @@ def main():
 
     model, vectorizer, metrics = train_model()
 
-    # Only display the columns for input and score card, no extra columns or empty boxes
     st.subheader("Enter a news article to check its authenticity.")
     news_article = st.text_area("News Article:", height=170, placeholder="Type or paste the news article here...")
     check = st.button("Check Authenticity")
